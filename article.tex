@@ -1,0 +1,68 @@
+\documentclass{article}
+
+%% Additional packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[scaled]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Begin of document %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\begin{titlepage}
+	\thispagestyle{empty}
+	\centering
+
+	{\large agrifoodTEF: Test and Experiment Facilities for the Agri-Food Domain\par}
+	\vspace{0.8cm}
+	{\normalsize CUP B67H22005930001\par}
+	\vspace{0.8cm}
+	{\normalsize S00352 -- Valutazione della soluzione proposta\par}
+	{\normalsize S00124 -- Valutazione delle performance degli algoritmi basati su IA\par}
+	\vspace{0.8cm}
+	{\normalsize RNA-COR: 24468613\par}
+	{\normalsize Prot. N. 6/2025-TEF-agrifood\par}
+
+	\vfill
+
+	{\LARGE \textbf{AgrifoodTEF FBK - AGRISKY}\par}
+	\vspace{0.4cm}
+	{\Large Report finale\par}
+	{\large Febbraio 2026\par}
+
+	\vfill
+
+	{\large Olmo Baldoni, Fabio Poiesi\par}
+	\vspace{0.2cm}
+	{\normalsize Technologies of Vision (TeV)\par}
+	{\normalsize Fondazione Bruno Kessler (FBK)\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+%% Main body
+
+\input{ch-intro/intro}
+
+\input{ch-analisi-esplorativa-harware/analisi-esplorativa}
+
+\input{ch-configurazione-sperimentale/configurazione-sperimentale}
+
+\input{ch-analisi-qualitativa/analisi-qualitativa}
+
+\input{ch-analisi-quantitativa/analisi-qualitativa}
+
+\input{ch-considerazioni-suggerimenti/considerazioni-suggerimenti}
+
+%% Bibliography
+
+\bibliographystyle{plain}
+\nocite{*}
+\bibliography{article}
+
+\end{document}

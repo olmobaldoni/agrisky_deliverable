@@ -1,0 +1,26 @@
+\section{Introduzione}
+
+In questo documento vengono presentate le attività di ricerca svolte e i risultati ottenuti nell'ambito del progetto AgriSky dall'unità Technologies of Vision (TeV) della Fondazione Bruno Kessler (FBK).
+
+\subsection{Formulazione del problema}
+
+Nell'ambito dell'Agricoltura 4.0, spesso indicata con il termine Smart Agriculture, l'analisi dei dati svolge un ruolo centrale nell'assistere le aziende nei processi decisionali. L'utilizzo di analitiche avanzate è fondamentale per supportare gli agricoltori nell'intraprendere azioni mirate al miglioramento dell'intero ciclo produttivo, dalla gestione della materia prima fino al prodotto finito. In questo contesto si inserisce AgriSky s.r.l., partner del progetto, il cui obiettivo è offrire ai propri clienti una gamma di servizi basati sull'analisi di dati provenienti da sensori IoT. Attraverso l'uso di algoritmi di Machine Learning e Computer Vision, l'azienda mira a monitorare in tempo reale le condizioni microclimatiche e lo stato vegetativo delle colture serricole, permettendo di massimizzare la resa produttiva e di intervenire tempestivamente in caso di anomalie o patologie.
+
+\subsection{Obiettivo del progetto}
+
+Uno degli strumenti più diffusi in agricoltura di precisione, ecologia e monitoraggio ambientale è l'indice NDVI (Normalized Difference Vegetation Index). Tale indice quantifica lo stato di salute della biomassa vegetale, rendendolo uno standard \emph{de facto} per il monitoraggio delle coltivazioni tramite visione artificiale. Le sorgenti dati tradizionali sono costituite da satelliti dotati di camere multispettrali e iperspettrali dal costo di diverse migliaia di euro, soluzioni che hanno trovato largo impiego nel campo del \emph{remote sensing} su vasta scala. Tuttavia, per analisi di dettaglio, sono necessarie camere montate su droni e rover in grado di fornire risoluzioni spaziali elevate. Spesso, i sensori agronomici professionali risultano costosi e complessi da integrare in sistemi su larga scala.
+
+Emerge, dunque, la necessità di validare alternative \emph{low-cost} e \emph{consumer-based}. Lo scopo di questo progetto è fornire un'analisi di fattibilità sull'utilizzo di una camera \emph{depth-oriented}, come la Intel RealSense serie D400 (largamente impiegata nella robotica industriale), confrontandola con una camera agronomica dedicata, la Mapir Survey 3. Quest'ultima, dotata di un sensore RGN (Red Green Near-Infrared) e quindi in grado di catturare la banda del vicino infrarosso, funge da \emph{ground truth} per validare la capacità della soluzione \emph{low-cost} di stimare correttamente l'indice NDVI.
+
+Complessivamente, il progetto è articolato in due servizi:
+
+\begin{itemize}
+	\item S00352 -- Valutazione della soluzione proposta
+	\item S00124 -- Valutazione delle performance degli algoritmi basati su IA
+\end{itemize}
+
+Lo studio è stato condotto su un dataset contenente immagini di piante di basilico coltivate in serra idroponica.
+
+\subsection{Sommario}
+
+Il report è strutturato in cinque sezioni principali. La prima sezione presenta un'analisi esplorativa dei sensori hardware utilizzati e delle loro specifiche tecniche. La seconda sezione esplora la configurazione sperimentale adottata per l'acquisizione consistente dei dati; in essa verranno esposte le metodologie di calibrazione stereo del sistema e fornita una descrizione teorica dell'indice protagonista dell'analisi, l'NDVI. A seguire, le sezioni tre e quattro contengono rispettivamente l'analisi quantitativa, focalizzata sulle metriche scelte per la valutazione dell'errore e della correlazione tra i sensori (MAE, RMSE, Pearson Coefficient), e l'analisi qualitativa basata sul confronto visivo delle mappe generate. La quinta e ultima sezione discute la fattibilità della soluzione proposta, analizzando le variabili che maggiormente influenzano il sistema e delineando le conclusioni e le direzioni future per l'ottimizzazione dell'intera pipeline di elaborazione.
