@@ -1,0 +1,205 @@
+\section{Analisi Quantitativa}
+
+In questa sezione vengono presentati i risultati relativi alla calibrazione del sistema stereo e la successiva analisi dell'indice NDVI estratto dai due sensori. Lo studio si basa su due dataset distinti: il primo è stato impiegato esclusivamente per la procedura di calibrazione geometrica, mentre il secondo è stato utilizzato per il calcolo e il confronto delle mappe NDVI.
+
+\subsection{Risultati della Calibrazione Stereo}
+
+\subsubsection{Dataset di calibrazione}
+
+Il dataset utilizzato è composto da 23 coppie di immagini ritraenti la scacchiera di calibrazione (checkerboard). Durante l'acquisizione, il pattern è stato posizionato a diverse distanze e con varie inclinazioni rispetto ai piani immagine (20$^\circ$ -- 45$^\circ$), cercando di coprire l'intera area sensibile dei dispositivi. Questo accorgimento è fondamentale per modellare correttamente le distorsioni ottiche, permettendo agli algoritmi di correggere efficacemente anche le deformazioni presenti ai bordi dell'inquadratura.
+
+\subsubsection{Calibrazione delle singole camere}
+
+Per quanto concerne la Intel RealSense D435i, è stato necessario definire una strategia preliminare basata sulla logica di funzionamento del sensore. Il calcolo dell'NDVI richiede la fusione di due bande spettrali: il canale Rosso (proveniente dal sensore RGB) e il canale NIR (proveniente dal sensore stereo Infrarosso sinistro). Tali sorgenti devono essere perfettamente registrate spazialmente. L'SDK Intel consente di allineare i flussi RGB e Infrarossi al flusso di profondità (Depth); poiché la mappa di profondità è generata nativamente dal punto di vista del sensore Infrarosso sinistro, allineare il colore alla Depth equivale geometricamente ad allinearlo al sensore IR.
+
+Tuttavia, l'utilizzo diretto dei flussi allineati in fase di calibrazione si è rivelato problematico. La scacchiera, essendo un pattern ripetitivo ad alto contrasto, mette in crisi l'algoritmo di stereo matching utilizzato per il calcolo della profondità, generando artefatti e zone prive di dati (buchi) proprio in corrispondenza del target. Poiché l'operazione di allineamento propaga questi buchi anche agli stream RGB e IR, l'utilizzo delle immagini allineate avrebbe compromesso la rilevazione degli angoli della scacchiera. Di conseguenza, per la calibrazione del sistema stereo si è deciso di utilizzare il flusso infrarosso grezzo, bypassando l'allineamento alla depth in questa fase. Inoltre, per la RealSense non sono stati ricalcolati i parametri intrinseci, ma si è scelto di affidarsi ai valori di calibrazione di fabbrica forniti tramite la libreria \texttt{pyrealsense2}, garantendo così l'alta affidabilità prevista dal produttore.
+
+Per la Mapir Survey 3, prima di procedere alla calibrazione degli intrinseci, è stato necessario un pre-processamento delle immagini. La notevole disparità di risoluzione nativa tra la Mapir (4000x3000 pixel) e la RealSense (1280x720 pixel) rendeva instabile la stima dei parametri estrinseci. Le immagini Mapir sono state ridimensionate e convertite in scala di grigi per eguagliare la larghezza della RealSense, adattando successivamente l'altezza mediante ritaglio per passare da 960 a 720 pixel. Questa operazione di normalizzazione delle dimensioni garantisce che ogni pixel delle due mappe rappresenti un'area fisica comparabile della vegetazione e rende il confronto quantitativo più coerente. A partire da queste immagini elaborate, sono stati calcolati i parametri intrinseci specifici per la Mapir Survey 3.
+
+\subsubsection{Risultati della calibrazione stereo}
+
+Una volta definiti i parametri intrinseci della Mapir e acquisiti quelli di fabbrica della RealSense, si è proceduto alla stima della trasformazione rigida tra le due camere seguendo la metodologia descritta nella sezione precedente.
+
+\input{ch-analisi-quantitativa/tabella-risultati-calibrazione-stereo}
+
+\subsection{Stereo Matching e NDVI Preprocessing}
+
+\subsubsection{Stereo Matching}
+
+L'output della fase precedente, ovvero la calibrazione stereo, è costituito dalla matrice di rotazione e dal vettore di traslazione che permettono di relazionare rigidamente il sistema di riferimento di una camera rispetto all'altro. La funzione di rettifica delle immagini utilizza questi parametri estrinseci, unitamente alle matrici intrinseche e ai rispettivi coefficienti di distorsione, per trasformare le coppie stereo originali in modo che le linee epipolari risultino allineate orizzontalmente.
+
+A questo punto, il dataset di calibrazione non è stato più utilizzato ed è stato sostituito dal secondo dataset fornito da AgriSky, il quale contiene immagini di coltivazioni di basilico in idrocoltura. Questo set di dati è quello impiegato successivamente per lo studio dell'NDVI e per le considerazioni finali. Esso comprende un totale di 22 coppie di immagini valide; la sequenza originale è stata troncata escludendo le coppie dalla 23 alla 40 a causa di disallineamenti temporali.
+
+A differenza del dataset di calibrazione, dove è stato impiegato esclusivamente il flusso grezzo in scala di grigi del sensore infrarosso, in questa fase operativa le sorgenti di dato per la RealSense sono immagini composite ottenute attraverso la sovrapposizione interna dei sensori. Sfruttando i parametri di fabbrica accessibili tramite l'SDK, è stato possibile registrare e allineare prospetticamente il flusso RGB sul flusso Infrarosso (Camera Sinistra). L'immagine risultante a tre canali è stata strutturata artificialmente come segue: il primo canale contiene l'informazione del canale Rosso proveniente dal modulo RGB, il secondo canale contiene l'informazione di luminanza del sensore Infrarosso, mentre il terzo canale (Blu) è posto a zero. Il risultato di tale sovrapposizione è visibile in Fig. \ref{fig:realsense-composite}. È rilevante notare che, sebbene il modulo RGB disponga di una risoluzione maggiore, il modulo stereo possiede un campo visivo (FOV) più ampio; di conseguenza, l'immagine composita mostra come il sensore stereo osservi una porzione di scena periferica non coperta dal sensore colore.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/right10_realsense.jpg}
+    \par\vspace{2pt}
+    {\small (a) Capture \#10}
+    
+    \vspace{10pt}
+    
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/right17_realsense.jpg}
+    \par\vspace{2pt}
+    {\small (b) Capture \#17}
+    
+    \caption{Esempi di immagini composite acquisite dalla Intel RealSense D435i: (a) Capture \#10, (b) Capture \#17. Le immagini mostrano la sovrapposizione del canale Rosso (RGB) sulla luminanza del sensore Infrarosso.}
+    \label{fig:realsense-composite}
+\end{figure}
+
+Le coppie di immagini stereo così costituite (Mapir e RealSense composita) vengono rettificate congiuntamente utilizzando i parametri di calibrazione. È risultato conveniente effettuare la composizione dei canali RealSense a monte della rettifica, in modo che la trasformazione geometrica venga applicata in maniera omogenea a tutte le bande spettrali coinvolte.
+
+Dalle immagini rettificate si procede allo step dello stereo matching. In via preliminare, le immagini vengono convertite in scala di grigi e l'immagine della Mapir, che risultava significativamente sottoesposta rispetto a quella della RealSense, è stata sottoposta a equalizzazione dell'istogramma (Fig. \ref{fig:histogram-matching}). Uniformare la distribuzione delle intensità luminose semplifica largamente la ricerca delle corrispondenze: l'algoritmo opera lungo le linee epipolari orizzontali, confrontando una finestra di riferimento nell'immagine sinistra con finestre candidate nell'immagine destra. L'obiettivo è minimizzare una funzione di costo basata sulle differenze di intensità o massimizzare la cross-correlazione tra le texture.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/histogram_matching_mapir.png}
+    \caption{Effetto dell'equalizzazione dell'istogramma applicata alle immagini della Mapir Survey 3 per uniformare la risposta luminosa rispetto alla RealSense.}
+    \label{fig:histogram-matching}
+\end{figure}
+
+L'algoritmo scelto per lo stereo matching è l'SGBM (Semi-Global Block Matching), il cui scopo è calcolare la mappa di disparità (Fig. \ref{fig:disparity-map}), ovvero lo spostamento orizzontale apparente degli stessi punti della scena osservati dalle due prospettive differenti. La qualità della ricostruzione dipende dalla sintonizzazione di tre parametri critici:
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/disparity_map.png}
+    \caption{Esempio di mappa di disparità ottenuta tramite l'algoritmo SGBM. Le diverse tonalità rappresentano lo shift orizzontale dei pixel tra le due viste rettificate.}
+    \label{fig:disparity-map}
+\end{figure}
+
+\begin{itemize}
+	\item \texttt{minDisparity}: definisce il valore minimo di disparità possibile. Sebbene teoricamente nullo per oggetti all'infinito, gli algoritmi di rettifica possono introdurre shift orizzontali che richiedono l'aggiustamento di questo offset.
+	\item \texttt{numDisparity}: rappresenta l'intervallo di ricerca (disparità massima meno disparità minima). Questo valore deve essere divisibile per 16 e incide direttamente sulla capacità di risolvere la profondità degli oggetti in primo piano; un valore troppo basso non rileva oggetti vicini, mentre un valore troppo alto aumenta il costo computazionale e i falsi positivi.
+	\item \texttt{blockSize}: indica la dimensione della finestra quadrata all'interno della quale viene effettuata la comparazione delle texture. Finestre piccole catturano dettagli fini ma sono rumorose, mentre finestre grandi sono più robuste ma tendono a smussare i bordi degli oggetti.
+\end{itemize}
+
+Per ogni coppia di immagini del dataset è stato ricercato sperimentalmente il set di parametri ottimale per garantire il miglior allineamento possibile. Tuttavia, questa fase ha presentato notevoli complicazioni dovute alla natura della scena: la piantagione di basilico costituisce un pattern visivo estremamente ripetitivo e omogeneo. La presenza di centinaia di foglie di forma e dimensione simile crea ambiguità nel matching, portando l'algoritmo a individuare numerosi minimi locali nella funzione di costo. Questo fenomeno rende difficile distinguere una foglia dall'altra lungo la linea epipolare, generando potenziale rumore o buchi nella mappa di disparità.
+
+Attraverso le mappe di disparità ottenute, si è proceduto alla riproiezione dei pixel dal piano immagine della RealSense al piano immagine della Mapir utilizzando la funzione di rimappatura (\texttt{cv2.remap}). Un esempio del risultato ottenuto è visibile in Fig. \ref{fig:reprojection-result}, dove a sinistra viene mostrata la vista della Mapir a seguito della rettifica, mentre a destra si trova la RealSense dopo la rettifica e la riproiezione sul piano immagine della Mapir.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/left_rectified_13_mapir.jpg}
+    \par\vspace{2pt}
+    {\small (a) Mapir Survey 3 (rettificata)}
+    
+    \vspace{10pt}
+    
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/reprojected_right_to_left_0013_intel.jpg}
+    \par\vspace{2pt}
+    {\small (b) Intel RealSense D435i (rettificata e riproiettata)}
+    
+    \caption{Risultato del processo di allineamento: (a) immagine Mapir rettificata, (b) immagine RealSense rettificata e riproiettata sul piano immagine della Mapir.}
+    \label{fig:reprojection-result}
+\end{figure}
+
+\subsubsection{NDVI preprocessing}
+
+Il completamento della fase di stereo matching mette a disposizione le viste dei due sensori sovrapposte a livello di pixel. Questa condizione di allineamento geometrico è il prerequisito indispensabile per il calcolo dell'indice; in assenza di tale corrispondenza, il calcolo genererebbe artefatti spuri privi di significato. Prima di procedere alla comparazione quantitativa tra le due sorgenti, è stato necessario isolare la porzione di scena occupata dalla vegetazione, rimuovendo il rumore di fondo introdotto dalle zone prive di biomassa, come il suolo o le strutture di supporto. L'obiettivo dell'analisi è infatti verificare se la stima NDVI fornita dalla RealSense costituisca un predittore rispetto al Ground Truth rappresentato dalla Mapir.
+
+A tal fine, le mappe sono state sottoposte a due distinte operazioni di mascheratura. Per quanto riguarda la RealSense, le immagini allineate derivano dalla rettifica e riproiezione dei punti; tuttavia, come descritto in precedenza, il sensore RGB possiede un campo visivo (FOV) inferiore rispetto al sensore Infrarosso stereo. Poiché il calcolo dell'NDVI richiede la presenza simultanea di entrambe le bande spettrali, le aree periferiche coperte unicamente dal segnale infrarosso non contengono informazione utile. La maschera di validità per la RealSense è stata quindi generata calcolando l'intersezione logica (AND bit a bit) tra le aree delle due sorgenti, escludendo i pixel dove una delle due componenti risultava assente.
+
+Per la Mapir, invece, la generazione della maschera è avvenuta mediante una sogliatura (thresholding) sui valori dell'NDVI stesso. Essendo l'interesse limitato alla sola biomassa vegetale, è stato impostato un valore di soglia minima per filtrare il background e tutto ciò che si trovasse al di sotto di tale livello. L'intera pipeline di preprocessing è schematizzata nel diagramma in fig. [x]. Come osservabile in fig. [x], questo filtraggio preserva la continuità della chioma senza creare lacune, in quanto i valori di NDVI sulla vegetazione sana si mantengono consistentemente sopra la soglia.
+
+La maschera finale globale è stata ottenuta dalla fusione delle due maschere intermedie. Questa maschera congiunta è stata applicata alle mappe NDVI originali di entrambi i sensori, producendo due dataset speculari che condividono esattamente gli stessi pixel validi. Con queste mappe depurate si è potuto procedere all'analisi statistica e alla comparazione. È opportuno precisare un dettaglio implementativo riguardante la gestione dei dati esclusi: poiché l'NDVI è un indice che varia nell'intervallo da -1 a 1, il valore 0 rappresenta un dato fisico valido (tipicamente suolo nudo o vegetazione morta). Pertanto, la maschera binaria non azzera i pixel scartati, ma li imposta al valore Not a Number (\texttt{np.nan}). Questa scelta è fondamentale per evitare che gli zeri alterino le statistiche globali, come la media o la deviazione standard, durante la fase di confronto. Il risultato visivo dell'operazione di mascheratura è riportato in Fig. \ref{fig:ndvi-masking}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/left_rectified_2_raw_ndvi_masked_ndvi_mapir.jpg}
+    \par\vspace{2pt}
+    {\small (a) Mapir Survey 3}
+    
+    \vspace{10pt}
+    
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/reprojected_right_to_left_0002_raw_ndvi_masked_ndvi_intel.jpg}
+    \par\vspace{2pt}
+    {\small (b) Intel RealSense D435i}
+    
+    \caption{Esempio di mascheratura densa applicata alle mappe NDVI: (a) Mapir Survey 3, (b) Intel RealSense D435i. I pixel non appartenenti alla vegetazione o esterni al campo visivo comune sono stati rimossi.}
+    \label{fig:ndvi-masking}
+\end{figure}
+
+\subsection{Analisi NDVI}
+
+Le analisi sul dataset del basilico sono state eseguite su tre livelli gerarchici:
+
+\begin{itemize}
+	\item A livello globale (\emph{pixel-weighted}), considerando l'insieme di tutti i pixel validi delle 23 immagini acquisite. Questo approccio fornisce una valutazione complessiva e rappresenta il benchmark più severo, poiché non attenua gli errori mediante operazioni di media.
+	\item A livello di singola immagine (\emph{image-weighted}), analizzando separatamente ciascuna delle 23 acquisizioni per identificare eventuali pattern legati a condizioni specifiche di ripresa (illuminazione, angolo di vista, copertura vegetale).
+	\item A livello di patch, suddividendo ciascuna immagine in tile regolari di 50$\times$50 pixel e calcolando la media dell'NDVI all'interno di ciascun tile. Questo livello attenua il contributo del rumore ad alta frequenza e degli outlier locali, evidenziando la coerenza delle strutture spaziali di scala maggiore.
+\end{itemize}
+
+In tutti e tre i livelli sono state calcolate le medesime metriche: Mean Absolute Error (MAE), Root Mean Square Error (RMSE) e coefficiente di correlazione lineare di Pearson.
+
+Come primo step è stata analizzata la distribuzione dei valori NDVI per entrambi i sensori (Fig. \ref{fig:ndvi-distribution-scatter}). 
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/ndvi_distribution_sampled_pixels.png}
+        \par\vspace{2pt}
+        {\small (a) Distribuzione valori NDVI}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/ndvi_scatter_sampled_pixels.png}
+        \par\vspace{2pt}
+        {\small (b) Scatter plot correlazione}
+    \end{minipage}
+    \caption{Analisi statistica globale: (a) distribuzione dei valori NDVI per Mapir e RealSense; (b) scatter plot della correlazione. La correlazione riportata nel grafico è stata ottenuta campionando 100.000 pixel sui circa 6,3 milioni disponibili.}
+    \label{fig:ndvi-distribution-scatter}
+\end{figure}
+
+La Mapir presenta una media pari a 0,207 con deviazione standard di 0,034, coerente con quanto atteso dopo il masking dei pixel con NDVI $<$ 0,1 applicato in fase di preprocessing. La ridotta variabilità riflette l'omogeneità della scena ripresa, costituita da una distesa uniforme di piante di basilico. Al contrario, la RealSense mostra una media negativa (-0,040) e una deviazione standard quattro volte superiore (0,145), indicativa di una maggiore dispersione dei valori attribuibile a rumore spettrale, riflessi non controllati o limitazioni intrinseche del sensore RGB-D nell'estrazione di informazione NIR.
+
+A livello globale, l'errore medio assoluto tra i due sensori si attesta a 0,257, con un RMSE di 0,284. La correlazione di Pearson, pari a 0,258, indica un legame debole tra le due serie di misure. Questo livello di disallineamento è proiettato spazialmente nelle mappe di calore dell'errore (Fig. \ref{fig:ndvi-error-heatmap}), dove si evince come la divergenza tra i due sensori non sia uniforme, ma distribuita in modo eterogeneo sulla superficie fogliare, confermando che il sensore RealSense non può sostituire la camera Mapir per applicazioni che richiedano accuratezza radiometrica locale senza una calibrazione specifica.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/ndvi_error_heatmap_0000.png}
+        \par\vspace{2pt}
+        {\small (a) Absolute Error Map (Capture \#0)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/ndvi_error_heatmap_0006.png}
+        \par\vspace{2pt}
+        {\small (b) Absolute Error Map (Capture \#6)}
+    \end{minipage}
+    \caption{Distribuzione spaziale dell'errore assoluto (MAE) tra le mappe NDVI di Mapir e RealSense per due differenti acquisizioni. Le aree più chiare indicano una maggiore discrepanza radiometrica.}
+    \label{fig:ndvi-error-heatmap}
+\end{figure}
+
+\input{ch-analisi-quantitativa/tabella-risultati-ndvi}
+
+A livello di singola immagine, i risultati mostrano un quadro sostanzialmente coerente con l'analisi globale, con un lieve miglioramento della correlazione media (Pearson = 0,290). Questo incremento è attribuibile al fatto che l'approccio image-weighted assegna pari peso a ciascuna acquisizione, riducendo l'influenza dominante delle immagini con maggiore copertura pixel validi. Tuttavia, il valore medio di Pearson rimane ben al di sotto della soglia di 0,30, confermando che la discrepanza non è riconducibile a un sottogruppo limitato di immagini anomale, ma rappresenta un limite strutturale del sensore RealSense nell'estrazione quantitativa dell'NDVI. 
+
+\input{ch-analisi-quantitativa/tabella-dettaglio-immagini}
+
+Nell'analisi patch-based sono state elaborate complessivamente 3.900 patch. Le mappe NDVI sottoposte a media locale per ciascuna patch (evidenziate dalla struttura a griglia in Fig. \ref{fig:ndvi-patch-grid}) mostrano uno scatter plot con correlazione nettamente superiore rispetto all'analisi pixel-level sulla stessa immagine: nell'immagine di indice 0, il coefficiente di Pearson passa da 0,420 a 0,837. Questo incremento è attribuibile all'effetto di regolarizzazione introdotto dalla media spaziale: gli outlier locali (pixel saturati, riflessi speculari, errori di coregistrazione sub-pixel) e il rumore ad alta frequenza vengono attenuati nel calcolo della media per tile, riducendo il loro peso nella stima della correlazione globale.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/ndvi_grid_based_normalized_01_0000.png}
+    \par\vspace{2pt}
+    {\small (a) Analisi patch-based (Acquisizione \#0000)}
+    
+    \vspace{10pt}
+    
+    \includegraphics[width=\textwidth]{ch-analisi-quantitativa/images/ndvi_grid_based_normalized_01_0011.png}
+    \par\vspace{2pt}
+    {\small (b) Analisi patch-based (Acquisizione \#0011)}
+    
+    \caption{Esempi di analisi patch-based con griglia $50\times50$ pixel: (a) acquisizione \#0000, (b) acquisizione \#0011. La struttura a griglia evidenzia la media spaziale calcolata per ogni tile, riducendo il rumore locale.}
+    \label{fig:ndvi-patch-grid}
+\end{figure}
+
+In altre parole, mentre a livello pixel la RealSense mostra una variabilità locale non strutturata ($\sigma = 0,145$), a scala patch questa variabilità si riduce e emerge un segnale coerente con la struttura spaziale rilevata dalla Mapir. 
+
+In conclusione, i dati grezzi raccolti dalla RealSense non sono attualmente idonei a sostituire la Mapir per applicazioni agronomiche quantitative. Un errore medio assoluto di 0,26 su un intervallo teorico [-1, +1] supera ampiamente la tolleranza operativa richiesta per decisioni basate su soglie NDVI (tipicamente < 0,05). Tuttavia, i valori elevati di correlazione a livello patch (Pearson medio = 0,562, con picchi > 0,80) dimostrano che il principio fisico di rilevamento della vegetazione è parzialmente preservato: il RealSense riesce a discriminare pattern spaziali relativi (aree con maggiore/minore copertura vegetale), pur non fornendo stime radiometriche assolute affidabili. L'utilizzo operativo del RealSense per stime spettrali richiederebbe pertanto una calibrazione radiometrica rigorosa, basata su pannelli di riferimento spettrale acquisiti durante ogni campagna di acquisizione, come avviene per la Mapir. Senza tali accorgimenti, il sensore rimane limitato ad applicazioni qualitative o a supporto geometrico (ricostruzione 3D), mentre la Mapir mantiene il ruolo di riferimento per l'informazione spettrale. 

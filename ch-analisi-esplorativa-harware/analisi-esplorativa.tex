@@ -4,7 +4,14 @@ La configurazione hardware adottata per la sperimentazione si avvale di due sens
 
 \subsection{Mapir Survey 3}
 
-La Mapir Survey 3, visibile in [fig. x], consiste in una camera multispettrale compatta ed economicamente accessibile, progettata per acquisire dati oltre lo spettro del visibile. La sua versatilità ne permette l'utilizzo sia su piattaforme aeree, come i droni, sia in prossimità del terreno su rover o trattori agricoli. La versione in dotazione ad AgriSky è equipaggiata con un filtro RGN, configurazione che abilita la cattura di immagini nello spettro del rosso, del verde e del vicino infrarosso. Nello specifico, le bande spettrali acquisite sono centrate sulle lunghezze d'onda del Red (660 nm), Green (550 nm) e NIR (850 nm). Il cuore del sistema è un sensore CMOS Sony Exmor R IMX117, capace di acquisire immagini a 12 MP con una risoluzione di 4000x3000 pixel.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{ch-analisi-esplorativa-harware/images/mapir.png}
+	\caption{Mapir Survey 3 (sinistra); Target di calibrazione per riflettanza (centro); Sensore luminosità (destra)}
+	\label{fig:mapir-hardware}
+\end{figure}
+
+La Mapir Survey 3, visibile in fig. \ref{fig:mapir-hardware}, consiste in una camera multispettrale compatta ed economicamente accessibile, progettata per acquisire dati oltre lo spettro del visibile. La sua versatilità ne permette l'utilizzo sia su piattaforme aeree, come i droni, sia in prossimità del terreno su rover o trattori agricoli. La versione in dotazione ad AgriSky è equipaggiata con un filtro RGN, configurazione che abilita la cattura di immagini nello spettro del rosso, del verde e del vicino infrarosso. Nello specifico, le bande spettrali acquisite sono centrate sulle lunghezze d'onda del Red (660 nm), Green (550 nm) e NIR (850 nm). Il cuore del sistema è un sensore CMOS Sony Exmor R IMX117, capace di acquisire immagini a 12 MP con una risoluzione di 4000x3000 pixel.
 
 A supporto della camera multispettrale, il setup comprende due dispositivi accessori per la radiometria. Il primo è un target di calibrazione (T4-R50) contenente quattro pannelli a riflettanza nota. Questi pannelli sono realizzati con materiali che approssimano superfici ideali a riflettanza lambertiana, ovvero superfici che riflettono la luce uniformemente in tutte le direzioni. Il loro utilizzo è cruciale in fase di post-elaborazione per convertire i valori digitali grezzi in valori di riflettanza reale, indipendentemente dalle condizioni di luce al momento dello scatto. Il secondo dispositivo è un sensore di luce ambientale (DAQ-A-SD) che assiste ulteriormente la fase di post-elaborazione misurando l'irradianza solare incidente in tempo reale, permettendo così di compensare le variazioni di luminosità.
 

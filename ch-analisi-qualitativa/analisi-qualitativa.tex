@@ -1,0 +1,34 @@
+\section{Analisi Qualitativa}
+
+\subsection{Il problema della scala}
+
+Nella seguente sezione sono riportate alcune figure che illustrano visivamente uno dei problemi più comuni nell'interpretazione degli indici vegetativi come l'NDVI: la dipendenza dalla scala di visualizzazione. L'NDVI, per sua natura, è un indice numerico compreso nell'intervallo teorico $[-1, +1]$ e rappresentato tipicamente in scala di grigi. Nella pratica operativa, per facilitare l'interpretazione visiva dello stato vegetativo, si applica frequentemente una Look-Up Table (LUT) pseudocromatica: valori bassi di NDVI (vegetazione scarsa o suolo nudo) vengono mappati verso tonalità rosse, mentre valori elevati (vegetazione rigogliosa) verso tonalità verdi. 
+
+Tuttavia, non sempre i valori originali dell'NDVI vengono normalizzati a un intervallo fisso prima dell'applicazione della LUT. Spesso la colorazione viene calcolata dinamicamente in base al minimo e al massimo valore presente nella singola immagine. Questo approccio introduce ambiguità interpretative in due scenari: (i) nel confronto tra sensori differenti che restituiscono distribuzioni di valori non sovrapponibili per la medesima scena; (ii) nel confronto temporale tra immagini acquisite dallo stesso sensore ma in condizioni ambientali o fenologiche diverse. 
+
+Un esempio di questo fenomeno è osservabile nelle Fig. \ref{fig:ndvi-lut-auto} e \ref{fig:ndvi-lut-fixed}, che mostrano la medesima coppia di mappe NDVI (Mapir e RealSense) visualizzate con due strategie differenti. Nella prima rappresentazione (Fig. \ref{fig:ndvi-lut-auto}), la LUT è calibrata sui valori minimo e massimo effettivamente presenti in ciascuna mappa, evidenziando al meglio il contrasto interno ma rendendo impossibile un confronto quantitativo diretto tra i sensori. 
+
+\begin{figure}[htbp]
+    \centering
+    \makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{ch-analisi-qualitativa/images/ndvi_pair_0006.png}
+    }
+    \caption{Confronto qualitativo con LUT auto-scalata: la colorazione è ottimizzata indipendentemente per ciascun sensore basandosi sul range locale dei valori.}
+    \label{fig:ndvi-lut-auto}
+\end{figure}
+
+Nella seconda rappresentazione (Fig. \ref{fig:ndvi-lut-fixed}), i valori sono stati preventivamente normalizzati nell'intervallo $[0, 1]$, permettendo un confronto visivo coerente: emerge chiaramente come la mappa RealSense presenti una dinamica compressa verso valori bassi o negativi, mentre la Mapir distribuisca l'informazione su un range positivo coerente con la presenza di vegetazione fotosinteticamente attiva. 
+
+\begin{figure}[htbp]
+    \centering
+    \makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{ch-analisi-qualitativa/images/ndvi_pair_normalized_01_0006.png}
+    }
+    \caption{Confronto qualitativo con LUT normalizzata in $[0, 1]$: la scala cromatica fissa permette di apprezzare il reale disallineamento radiometrico tra i due sensori.}
+    \label{fig:ndvi-lut-fixed}
+\end{figure}
+\subsection{Coerenza strutturale}
+
+Come è possibile osservare nella Fig. \ref{fig:ndvi-patch-grid}, le mappe NDVI della RealSense mostrano una struttura spaziale parzialmente coerente con quella della Mapir, nonostante il marcato disallineamento nei valori assoluti. La scena analizzata è costituita interamente da una coltura omogenea di basilico, senza transizioni nette suolo-vegetazione. In questo contesto, si osserva un leggero gradiente spaziale: le misure tendono a presentare valori leggermente più elevati e stabili nella porzione centrale dell'immagine rispetto ai bordi. Questo comportamento è probabilmente attribuibile a effetti ottici legati alla geometria di acquisizione (es. vignettatura, angolo di incidenza della luce solare) o a una minore influenza di riflessi parassiti nella zona centrale del campo visivo. 
+
+Un'ipotesi plausibile per spiegare la parziale coerenza strutturale riguarda l'influenza del proiettore infrarosso integrato nella RealSense D435i. Questo emettitore, utilizzato per la ricostruzione della nuvola di punti, irradia luce NIR attiva sulla scena. Le foglie di basilico, caratterizzate da elevata riflettanza nella banda NIR, potrebbero riflettere questa radiazione aggiuntiva sia verso il sensore RealSense stesso sia, in misura minore, verso la camera Mapir posizionata in prossimità. Tale effetto potrebbe introdurre un bias sistematico nelle misure, innalzando artificialmente i valori NDVI rispetto a quelli che si otterrebbero in condizioni di sola illuminazione solare passiva. Questo fenomeno andrebbe quantificato mediante acquisizioni di controllo con il proiettore IR disattivato, al fine di isolare il contributo della radiazione attiva rispetto a quella solare.

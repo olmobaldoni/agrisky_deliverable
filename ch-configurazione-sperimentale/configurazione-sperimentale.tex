@@ -1,6 +1,6 @@
-\section{Configurazione Sperimentale [TODO]}
+\section{Configurazione Sperimentale}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed felis augue, scelerisque et vestibulum id, pellentesque eget nisi. Curabitur elementum sem lorem, id cursus neque feugiat et. Vivamus id eleifend nulla, et sodales massa. Nunc vehicula dolor risus, non elementum lectus bibendum non. Sed dignissim consequat magna eget gravida. Praesent condimentum suscipit iaculis. Vivamus sagittis diam ut mauris bibendum molestie. Duis in magna vel lectus finibus iaculis. In dignissim et eros sed vehicula. Suspendisse finibus libero ut velit consectetur malesuada.
+In questo capitolo viene descritta la metodologia seguita per la configurazione del sistema di acquisizione e la successiva pipeline di elaborazione dei dati. Il raggiungimento di una misura affidabile dell'indice NDVI richiede non solo la scelta di sensori appropriati, ma anche una rigorosa coerenza spaziale e radiometrica tra le diverse bande spettrali acquisite. Verranno quindi analizzati i principi teorici dell'indice di vegetazione, l'architettura fisica del setup sperimentale progettato per garantire stabilità meccanica e le fasi cruciali del processo di calibrazione e allineamento stereo, necessarie per trasformare dati grezzi provenienti da sensori eterogenei in mappe multispettrali allineate pixel-per-pixel.
 
 \subsection{Indice NDVI}
 
@@ -20,7 +20,16 @@ Poiché l'NDVI è calcolato tramite un operatore puntuale a livello di pixel, ov
 
 Per affrontare questa problematica esistono due approcci metodologici principali. La prima via consiste nell'utilizzo di algoritmi classici di computer vision, che prevedono una pipeline geometrica strutturata in fasi di calibrazione delle camere, rettifica delle immagini, calcolo delle mappe di disparità e allineamento stereo. La seconda via prevede l'impiego di metodi basati su deep learning, che tuttavia richiedono hardware dedicato ad alte prestazioni (GPU) e modelli pre-addestrati su vasti dataset stereoscopici, spesso non disponibili per configurazioni custom come quella in esame.
 
-In questo progetto si è deciso di adottare la pipeline classica, procedendo dalla calibrazione intrinseca ed estrinseca dei sensori fino alla rettifica epipolare e al successivo allineamento dei flussi video. Per garantire la stabilità necessaria a tali elaborazioni geometriche, è stato fondamentale eliminare ogni vibrazione o movimento relativo tra i sensori. Pertanto, le due camere sono state montate rigidamente su un profilo metallico estruso, mantenendo una baseline fissa, e il tutto è stato posizionato su un treppiede statico. Per assicurare il corretto posizionamento, sono stati progettati e realizzati supporti su misura; in fig. [x] è visibile il diagramma di assemblaggio del sistema di acquisizione, mentre la fig. [x] mostra il modello CAD per il fissaggio della Intel RealSense D435i.
+In questo progetto si è deciso di adottare la pipeline classica, procedendo dalla calibrazione intrinseca ed estrinseca dei sensori fino alla rettifica epipolare e al successivo allineamento dei flussi video. Per garantire la stabilità necessaria a tali elaborazioni geometriche, è stato fondamentale eliminare ogni vibrazione o movimento relativo tra i sensori. Pertanto, le due camere sono state montate rigidamente su un profilo metallico estruso, mantenendo una baseline fissa, e il tutto è stato posizionato su un treppiede statico. Per assicurare il corretto posizionamento, sono stati progettati e realizzati supporti su misura.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{ch-configurazione-sperimentale/images/realsense.png}
+	\caption{RealSense D435i (sinistra); Modulo di fissaggio (destra)}
+	\label{fig:realsense-cad}
+\end{figure}
+
+La fig. \ref{fig:realsense-cad} mostra il modello CAD per il fissaggio della Intel RealSense D435i.
 
 \subsection{Calibrazione del Sistema Stereo}
 
@@ -45,6 +54,24 @@ Per ciascun punto, la distanza ortogonale tra il punto stesso e la sua linea epi
 \subsubsection{Rettifica stereo}
 
 La fase conclusiva del processo di calibrazione è la rettifica stereo (\texttt{cv2.stereoRectify}), procedura che utilizza una trasformazione matematica per rimappare i piani immagine originali su un nuovo piano comune in cui le linee epipolari risultano parallele e orizzontali. In termini pratici, ciò significa che ogni punto fisico osservato dalla camera sinistra viene proiettato sulla medesima riga di pixel nell'immagine della camera destra. Questo allineamento è il prerequisito indispensabile per semplificare il successivo problema di corrispondenza stereo, permettendo di passare da una ricerca bidimensionale a una più efficiente ricerca monodimensionale lungo l'asse orizzontale.
+
+L'efficacia di questa trasformazione è strettamente dipendente dalla qualità della calibrazione iniziale. Nella Fig. \ref{fig:rectification-bad} è riportato un esempio di rettifica ottenuta utilizzando i parametri estrinseci stimati sull'intero dataset grezzo, senza una preventiva rimozione degli outlier. Si può chiaramente osservare come le linee epipolari non passino per i medesimi punti della scacchiera nelle due inquadrature, segnalando un errore sistematico nella geometria del sistema. 
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{ch-configurazione-sperimentale/images/rectified_comparison_0_bad.jpg}
+	\caption{Rettifica stereo fallita: l'assenza di filtraggio degli outlier nei dati di calibrazione comporta un errato allineamento delle linee epipolari.}
+	\label{fig:rectification-bad}
+\end{figure}
+
+Al contrario, la Fig. \ref{fig:rectification-good} mostra il risultato ottenuto applicando i parametri estrinseci calcolati dopo il filtraggio selettivo delle coppie di immagini. In questo caso, le linee epipolari risultano perfettamente coerenti tra le due viste, garantendo che ogni punto fisico si trovi sulla stessa riga di pixel in entrambi i sensori, condizione fondamentale per il successo della successiva fase di stereo matching.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{ch-configurazione-sperimentale/images/rectified_comparison_16_good.jpg}
+	\caption{Rettifica stereo corretta: il filtraggio del dataset di calibrazione permette di ottenere un allineamento epipolare ottimale.}
+	\label{fig:rectification-good}
+\end{figure}
 
 \subsection{Stereo Matching}
 

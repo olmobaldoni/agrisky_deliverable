@@ -1,0 +1,39 @@
+\section{Considerazioni e Suggerimenti}
+
+\subsection{Allineamento temporale per le sorgenti di dato}
+
+In questo progetto è stato calibrato un sistema stereo eterogeneo, composto da due sensori con finalità operative distinte. Una delle criticità principali ha riguardato l'estrazione di sequenze informative simultanee. Nel contesto della calibrazione stereo, la sincronizzazione temporale è un requisito essenziale: le due camere devono acquisire la medesima scena nello stesso istante esatto. Poiché i dispositivi in uso non prevedevano una gestione simultanea tramite trigger hardware o software unificato, l'acquisizione è stata effettuata in modo asincrono su scene statiche, garantendo che la posizione della scacchiera non variasse tra lo scatto della Mapir e quello della RealSense. Successivamente, l'associazione dei frame destro e sinistro è avvenuta a posteriori basandosi sui timestamp nei nomi dei file. Sebbene tale metodo sia funzionale per dataset di dimensioni ridotte, esso risulta poco scalabile e fragile all'aumentare della mole di dati, suggerendo per sviluppi futuri l'implementazione di un sistema di triggering condiviso.
+
+\subsection{Fissaggio delle camere e calibrazione}
+
+La validità della calibrazione geometrica è strettamente dipendente dalla rigidità del setup sperimentale. Qualsiasi modifica alla posizione relativa dei sensori altera la baseline, invalidando i parametri estrinseci calcolati in precedenza e richiedendo una nuova procedura di calibrazione. L'utilizzo di parametri obsoleti comporta inevitabilmente errori di riproiezione che compromettono la sovrapposizione delle mappe. Inoltre, per garantire la massima precisione, è fondamentale evitare l'azionamento manuale dei tasti fisici sulle camere durante l'acquisizione; l'introduzione di comandi di scatto remoti è consigliata per eliminare le micro-vibrazioni che potrebbero introdurre sfocature o disallineamenti impercettibili ma dannosi per l'analisi pixel-wise.
+
+\subsection{Numero di acquisizioni per la calibrazione e modalità}
+
+L'analisi quantitativa riportata in tabella \ref{tab:risultati-calibrazione-stereo} evidenzia che, a fronte di un dataset iniziale di 110 coppie di immagini, il sistema ha validato ed utilizzato effettivamente solo 39 coppie per la stima dei parametri. Questo elevato tasso di scarto è dovuto ai criteri rigorosi applicati per la rimozione degli outliers, basati sull'errore epipolare e sullo spostamento verticale residuo. Parallelamente, la figura \ref{fig:coverage-comparison} mostra che la copertura totale dell'area sensibile (coverage), ovvero la distribuzione dei punti rilevati sulla superficie del sensore, si attesta intorno al 50\%.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{ch-considerazioni-suggerimenti/images/total_coverage_mapir.jpg}
+    \par\vspace{2pt}
+    {\small (a) Mapir Survey 3}
+    
+    \vspace{20pt}
+    
+    \includegraphics[width=\textwidth]{ch-considerazioni-suggerimenti/images/total_coverage_realsense.jpg}
+    \par\vspace{2pt}
+    {\small (b) Intel RealSense D435i}
+    
+    \caption{Mappe di copertura (coverage) dei punti rilevati sulla scacchiera durante la calibrazione: (a) Mapir Survey 3, (b) Intel RealSense D435i.}
+    \label{fig:coverage-comparison}
+\end{figure}
+
+Queste osservazioni indicano la necessità di incrementare la numerosità del dataset di calibrazione, avendo cura di coprire l'intero campo visivo, specialmente le zone periferiche, per modellare più efficacemente la distorsione radiale e tangenziale. È altresì raccomandabile variare maggiormente l'orientamento della scacchiera, introducendo inclinazioni più accentuate ($\pm$45$^\circ$) rispetto all'asse ottico.
+
+\subsection{Diversa risposta radiometrica dei sensori}
+
+Un limite intrinseco del sistema ibrido risiede nella diversa risposta spettrale dei sensori. La Mapir Survey 3 è una camera a banda stretta (\emph{Narrow Band}), progettata per catturare picchi specifici a 660 nm (Rosso), 550 nm (Verde) e 850 nm (NIR). Al contrario, il sensore della RealSense opera a banda larga (\emph{Broad Band}); i suoi canali non isolano frequenze discrete ma integrano la luce su curve ampie e parzialmente sovrapposte. Anche il sensore stereo, sensibile tra 400 e 860 nm, è ottimizzato per vedere tutto lo spettro visibile più l'infrarosso del proiettore, senza filtri selettivi. Per mitigare questa discrepanza in futuro, una soluzione efficace potrebbe consistere nell'applicazione di un filtro ottico passa-banda esterno sull'obiettivo del sensore stereo sinistro, replicando il setup sperimentale proposto da [x et al.], per uniformare fisicamente l'input radiometrico delle due camere.
+
+\subsection{Precisione del dato}
+
+Attraverso il software Mapir Camera Control è possibile elaborare i file RAW nativi convertendoli in formato TIFF a 16 bit per canale, superando il limite standard degli 8 bit del formato JPEG. Il TIFF è un formato \emph{lossless} che non introduce compressione distruttiva né artefatti. Per la generazione delle Ground Truth, l'utilizzo di immagini a 16 bit è fortemente consigliato rispetto ai formati compressi, poiché le mappe NDVI derivate possono beneficiare di una risoluzione radiometrica superiore, permettendo di discriminare variazioni molto sottili nello stato di salute della vegetazione che verrebbero altrimenti appiattite o perse a causa della quantizzazione del segnale.

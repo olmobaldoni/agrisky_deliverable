@@ -1,0 +1,25 @@
+\begin{table}[htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.2}
+    \caption{Confronto dei risultati di calibrazione stereo sui diversi dataset.}
+    \label{tab:risultati-calibrazione-stereo}
+    \begin{tabular}{|p{3.2cm}|p{2.0cm}|p{2.0cm}|p{2.0cm}|p{2.0cm}|}
+        \hline
+        & \textbf{Dataset Calibrazione Originale (no epipolar outliers rejection)} & \textbf{Dataset Calibrazione Originale (epipolar outliers rejection)} & \textbf{Dataset Calibrazione Filtrato (no epipolar outliers rejection)} & \textbf{Dataset Calibrazione Filtrato (epipolar outliers rejection)} \\
+        \hline
+        \textbf{Num. coppie totali} & 110 & 110 & 59 & 59 \\
+        \hline
+        \textbf{Num. coppie con checkerboard visibile} & 103 & 103 & 59 & 59 \\
+        \hline
+        \textbf{Errore epipolare massimo (in pixel) consentito per una coppia} & non definito & 1 & non definito & 1 \\
+        \hline
+        \textbf{Num. coppie valide (errore epipolare rispettato)} & non definito & 35 & non definito & 35 \\
+        \hline
+        \textbf{RMSE stereo finale (in pixel)} & 13.5689 & 0.5853 & 0.3320 & 0.3176 \\
+        \hline
+        \textbf{Spostamento verticale medio (in pixel)} & 1.8515 & 1.694 & 0.3176 & 0.3424 \\
+        \hline
+    \end{tabular}
+\end{table}
