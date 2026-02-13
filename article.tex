@@ -6,6 +6,7 @@
 \usepackage[italian]{babel}
 \usepackage[scaled]{helvet}
 \usepackage{graphicx}
+\usepackage{style/report_style}
 \renewcommand{\familydefault}{\sfdefault}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -43,6 +44,41 @@
 	{\normalsize Fondazione Bruno Kessler (FBK)\par}
 \end{titlepage}
 
+\pagestyle{scrheadings}
+
+\section*{Disclaimer}
+
+\textbf{Finanziato dall'Unione Europea - Next Generation EU}
+
+
+I punti di vista e le opinioni espresse, tuttavia, sono solo quelli degli autori e non riflettono necessariamente quelli dell'Unione europea o della Commissione Europea. Né l'Unione europea né la Commissione europea possono essere ritenute responsabili per essi.
+
+\newpage
+% --- Tabelle di Disseminazione e Revisione ---
+\begin{center}
+    \renewcommand{\arraystretch}{1.5}
+    \sffamily
+    \begin{tabularx}{\textwidth}{|p{0.15\textwidth}|X|c|}
+        \hline
+        \rowcolor{agrigreen}
+        \multicolumn{3}{|c|}{\textbf{\color{white} Livello di disseminazione}} \\ \hline
+        \rowcolor{agrilight} PU & Pubblico & $\square$ \\ \hline
+        \rowcolor{agrilight} CO & Confidenziale & $\square$ \\ \hline
+    \end{tabularx}
+
+    \vspace{1cm}
+
+    \begin{tabularx}{\textwidth}{|p{0.25\textwidth}|p{0.15\textwidth}|X|}
+        \hline
+        \rowcolor{agrigreen}
+        \textbf{\color{white} Data} & \textbf{\color{white} Versione} & \textbf{\color{white} Principali variazioni} \\ \hline
+        \cellcolor{agrigreen} & \cellcolor{agrilight} 1.0 & \cellcolor{agrilight} First document version \\ \hline
+        \cellcolor{agrigreen} & \cellcolor{agrilight} & \cellcolor{agrilight} \\ \hline
+        \cellcolor{agrigreen} & \cellcolor{agrilight} & \cellcolor{agrilight} \\ \hline
+    \end{tabularx}
+\end{center}
+
+\newpage
 \tableofcontents
 \newpage
 

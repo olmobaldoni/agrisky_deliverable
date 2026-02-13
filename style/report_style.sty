@@ -1,0 +1,63 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{report_style}[2026/02/13 Report Style with logos and pattern]
+
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+\RequirePackage{scrlayer-scrpage}
+\RequirePackage{array}
+\RequirePackage{amssymb}
+\RequirePackage{colortbl}
+\RequirePackage{tabularx}
+
+% --- Definizione Colori ---
+\definecolor{agrigreen}{HTML}{A8D08D}
+\definecolor{agrilight}{HTML}{E2EFDA}
+
+% --- Configurazione Margini ---
+\RequirePackage[top=3.5cm, bottom=2.5cm, left=3.5cm, right=3.5cm, headheight=85pt, footskip=35pt]{geometry}
+
+\graphicspath{{style/images/}}
+
+\clearpairofpagestyles
+
+% Linea grigia sottile sotto l'header e sopra il footer
+\setheadsepline{0.4pt}[\color{gray!40}]
+\setfootsepline{0.4pt}[\color{gray!40}]
+
+% HEADER: Distribuzione dei 4 loghi obbligatori
+\ihead{%
+    \begin{minipage}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{logo_ue.png}\\
+        \tiny 101100622/agrifoodTEF
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{logo_nextgen.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.22\textwidth}
+        \includegraphics[width=\textwidth]{logo_ministero.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.18\textwidth}
+        % Using the file name without extension to allow for both .png (if exists) or .svg (with proper setup)
+        \includegraphics[width=\textwidth]{logo_tef.png}
+    \end{minipage}
+}
+
+% FOOTER: Numero Pagina a destra
+\ofoot{%
+    \small \thepage 
+}
+
+% LAYER PER IL PATTERN GEOMETRICO (Sfondo del footer, limitato alla larghezza del testo)
+\DeclareNewLayer[
+  foreground,
+  foot,
+  contents={%
+    \vfill
+    \centering
+    \includegraphics[width=\textwidth,height=1cm,keepaspectratio=false]{footer_pattern.png}
+  }
+]{footer.pattern}
+\AddLayersToPageStyle{scrheadings}{footer.pattern}
