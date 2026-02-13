@@ -17,32 +17,75 @@
 
 \begin{titlepage}
 	\thispagestyle{empty}
-	\centering
+	
+	% Loghi in alto
+	\noindent
+	\begin{minipage}[t]{0.45\textwidth}
+		\includegraphics[height=1.2cm]{logo_nextgen.png}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\raggedleft
+		\includegraphics[height=1.2cm]{logo_ministero.png}
+	\end{minipage}
 
-	{\large agrifoodTEF: Test and Experiment Facilities for the Agri-Food Domain\par}
-	\vspace{0.8cm}
-	{\normalsize CUP B67H22005930001\par}
-	\vspace{0.8cm}
-	{\normalsize S00352 -- Valutazione della soluzione proposta\par}
-	{\normalsize S00124 -- Valutazione delle performance degli algoritmi basati su IA\par}
-	\vspace{0.8cm}
-	{\normalsize RNA-COR: 24468613\par}
-	{\normalsize Prot. N. 6/2025-TEF-agrifood\par}
+	\vspace{2.5cm}
+
+	\centering
+	\includegraphics[width=0.55\textwidth]{logo_tef.png}
+
+	\vspace{1.5cm}
+
+	{\large \textbf{\color{agrigreen} agrifoodTEF: Test and Experiment Facilities for the Agri-Food Domain}\par}
+	\vspace{0.6cm}
+	{\normalsize \color{gray} CUP B67H22005930001\par}
+	\vspace{0.6cm}
+	{\normalsize \color{gray} S00352 -- Valutazione della soluzione proposta\par}
+	{\normalsize \color{gray} S00124 -- Valutazione delle performance degli algoritmi basati su IA\par}
+	\vspace{0.6cm}
+	{\normalsize \color{gray} RNA-COR: 24468613\par}
+	{\normalsize \color{gray} Prot. N. 6/2025-TEF-agrifood\par}
 
 	\vfill
 
-	{\LARGE \textbf{AgrifoodTEF FBK - AGRISKY}\par}
+	{\huge \textbf{\color{agrigreen} AGRIFOODTEF FBK - AGRISKY}\par}
 	\vspace{0.4cm}
 	{\Large Report finale\par}
 	{\large Febbraio 2026\par}
 
-	\vfill
-
+    \vspace{1cm}
 	{\large Olmo Baldoni, Fabio Poiesi\par}
 	\vspace{0.2cm}
 	{\normalsize Technologies of Vision (TeV)\par}
 	{\normalsize Fondazione Bruno Kessler (FBK)\par}
+
+	\vfill
+
+	\raggedright
+	\includegraphics[width=0.15\textwidth]{logo_fbk.png}
 \end{titlepage}
+
+\newpage
+
+\thispagestyle{empty}
+% Loghi in alto
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+	\includegraphics[height=1.2cm]{logo_nextgen.png}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+	\raggedleft
+	\includegraphics[height=1.2cm]{logo_ministero.png}
+\end{minipage}
+
+\vfill
+
+\noindent
+\raggedright
+\includegraphics[width=0.15\textwidth]{logo_fbk.png}
+
+\newpage
 
 \pagestyle{scrheadings}
 
@@ -50,7 +93,7 @@
 
 \noindent{\textbf{Finanziato dall'Unione Europea - Next Generation EU}} \\
 
-I punti di vista e le opinioni espresse, tuttavia, sono solo quelli degli autori e non riflettono necessariamente quelli dell'Unione europea o della Commissione Europea. Né l'Unione europea né la Commissione europea possono essere ritenute responsabili per essi.
+\noindent{I punti di vista e le opinioni espresse, tuttavia, sono solo quelli degli autori e non riflettono necessariamente quelli dell'Unione europea o della Commissione Europea. Né l'Unione europea né la Commissione europea possono essere ritenute responsabili per essi.}
 
 \newpage
 % --- Tabelle di Disseminazione e Revisione ---
@@ -97,7 +140,7 @@ I punti di vista e le opinioni espresse, tuttavia, sono solo quelli degli autori
 \input{ch-considerazioni-suggerimenti/considerazioni-suggerimenti.tex}
 
 %% Bibliography
-
+\newpage
 \bibliographystyle{plain}
 \nocite{*}
 \bibliography{article}
